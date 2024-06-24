@@ -33,6 +33,7 @@
     <PackageReference Include="Nethereum.Signer" Version="4.16.0" />
     <PackageReference Include="Nethereum.Signer.EIP712" Version="4.16.0" />
     <PackageReference Include="Nethereum.Web3" Version="4.16.0" />
+    <PackageReference Include="Nethereum.Util" Version="4.16.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +43,12 @@
     <EmbeddedResource Include="Resources\erc-721-abi.json" />
     <None Remove="Resources\erc-1155-abi.json" />
     <EmbeddedResource Include="Resources\erc-1155-abi.json" />
+    <None Remove="Resources\evm-abi.json" />
+    <EmbeddedResource Include="Resources\evm-abi.json" />
+    <None Remove="Resources\marketplace-abi.json" />
+    <EmbeddedResource Include="Resources\marketplace-abi.json" />
+    <None Remove="Resources\gelato-abi.json" />
+    <EmbeddedResource Include="Resources\gelato-abi.json" />
   </ItemGroup>
 
   <!--

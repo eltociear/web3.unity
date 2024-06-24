@@ -31,7 +31,10 @@ namespace ChainSafe.Gaming.Web3.Build
                 .AddSingleton<ILogoutManager, LogoutManager>()
                 .AddSingleton<Erc20Service>()
                 .AddSingleton<Erc721Service>()
-                .AddSingleton<Erc1155Service>();
+                .AddSingleton<Erc1155Service>()
+                .AddSingleton<EvmService>()
+                .AddSingleton<MarketplaceService>()
+                .AddSingleton<GelatoService>();
         }
 
         /// <summary>

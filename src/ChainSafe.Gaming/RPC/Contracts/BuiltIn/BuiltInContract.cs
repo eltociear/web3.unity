@@ -15,7 +15,10 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
 
         public virtual IContract Attach(string address) => Original.Attach(address);
 
-        public virtual Task<object[]> Call(string method, object[] parameters = null, TransactionRequest overwrite = null) =>
+        public virtual Task<object[]> Call(
+            string method,
+            object[] parameters = null,
+            TransactionRequest overwrite = null) =>
             Original.Call(method, parameters, overwrite);
 
         public object[] Decode(string method, string output) => Original.Decode(method, output);

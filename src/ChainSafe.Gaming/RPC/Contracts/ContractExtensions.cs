@@ -516,6 +516,39 @@ namespace ChainSafe.Gaming.Evm.Contracts
             return response.Cast<TOut>();
         }
 
+        /// <summary>
+        /// Asynchronously sends a transaction to a smart contract method that is expected to return multiple values of a specified type.
+        /// This method is suitable for interacting with smart contract methods designed to return an array or list of elements, allowing for the retrieval of multiple items in a single transaction.
+        /// </summary>
+        /// <typeparam name="TOut">The type of the elements expected to be returned by the smart contract method. The response will be cast to an enumerable collection of this type.</typeparam>
+        /// <typeparam name="TIn1">The type of the first input parameter.</typeparam>
+        /// <typeparam name="TIn2">The type of the second input parameter.</typeparam>
+        /// <typeparam name="TIn3">The type of the third input parameter.</typeparam>
+        /// <typeparam name="TIn4">The type of the fourth input parameter.</typeparam>
+        /// <param name="contract">The contract instance on which the transaction is sent.</param>
+        /// <param name="methodName">The name of the smart contract method to which the transaction is sent.</param>
+        /// <param name="in1">The first input parameter.</param>
+        /// <param name="in2">The second input parameter.</param>
+        /// <param name="in3">The third input parameter.</param>
+        /// <param name="in4">The fourth input parameter.</param>
+        /// <param name="requestPrototype">Optional. A prototype object for the transaction request. This can be used to specify additional parameters for the transaction such as gas limit, gas price, value, etc., if required.</param>
+        /// <returns>A task representing the asynchronous operation, with a result of an <see cref="IEnumerable{TOut}"/>, containing the items returned by the smart contract method.</returns>
+        /// <exception cref="Web3Exception">Thrown if the response from the smart contract is empty or if any of the items in the response cannot be converted to the specified type <typeparamref name="TOut"/>, indicating a potential type mismatch.</exception>
+        public static async Task<IEnumerable<TOut>> SendMany<TOut, TIn1, TIn2, TIn3, TIn4>(
+            this Contract contract,
+            string methodName,
+            TIn1 in1,
+            TIn2 in2,
+            TIn3 in3,
+            TIn4 in4,
+            TransactionRequest requestPrototype = null)
+        {
+            var response = await contract.Send(methodName, new object[] { in1, in2, in3, in4 }, requestPrototype);
+            AssertResponseNotEmpty(response);
+            AssertConversionMany<TOut>(response);
+            return response.Cast<TOut>();
+        }
+
         private static void AssertResponseNotEmpty(object[] response)
         {
             if (response.Length == 0)

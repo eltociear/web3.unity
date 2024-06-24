@@ -45,6 +45,9 @@ namespace ChainSafe.Gaming.Web3
             Erc20 = this.serviceProvider.GetRequiredService<Erc20Service>();
             Erc721 = this.serviceProvider.GetRequiredService<Erc721Service>();
             Erc1155 = this.serviceProvider.GetRequiredService<Erc1155Service>();
+            Evm = this.serviceProvider.GetRequiredService<EvmService>();
+            Gelato = this.serviceProvider.GetRequiredService<GelatoService>();
+            Marketplace = this.serviceProvider.GetRequiredService<MarketplaceService>();
         }
 
         /// <summary>
@@ -96,6 +99,21 @@ namespace ChainSafe.Gaming.Web3
         /// Represents an ERC1155 service that provides functionality to interact with ERC1155 tokens.
         /// </summary>
         public Erc1155Service Erc1155 { get; }
+
+        /// <summary>
+        /// Represents an ERC1155 service that provides functionality to interact with EVM.
+        /// </summary>
+        public EvmService Evm { get; }
+
+        /// <summary>
+        /// Represents a service that provides functionality to interact with the marketplace.
+        /// </summary>
+        public MarketplaceService Marketplace { get; }
+
+        /// <summary>
+        /// Represents a service that provides functionality to interact with gelato.
+        /// </summary>
+        public GelatoService Gelato { get; }
 
         /// <summary>
         /// Access the service provider of this Web3 instance.

@@ -117,7 +117,7 @@ public class EvmCalls : MonoBehaviour
         {
             Web3Accessor.Web3.Signer.PublicAddress
         };
-        var response = await Evm.ContractCall(Web3Accessor.Web3, methodCall, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, args);
+        var response = await Web3Accessor.Web3.Evm.ContractCall(ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, methodCall, args);
         Debug.Log(response);
         var output = SampleOutputUtil.BuildOutputValue(response);
         SampleOutputUtil.PrintResult(output, nameof(Evm), nameof(Evm.ContractCall));
@@ -132,7 +132,7 @@ public class EvmCalls : MonoBehaviour
         {
             increaseAmountSend
         };
-        var response = await Evm.ContractSend(Web3Accessor.Web3, methodSend, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, args);
+        var response = await Web3Accessor.Web3.Evm.ContractSend(ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, methodSend, args);
         var output = SampleOutputUtil.BuildOutputValue(response);
         SampleOutputUtil.PrintResult(output, nameof(Evm), nameof(Evm.ContractSend));
     }
@@ -142,7 +142,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void GetArray()
     {
-        var response = await Evm.GetArray<string>(Web3Accessor.Web3, ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, methodArrayGet);
+        var response = await Web3Accessor.Web3.Evm.GetArray<string>(ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, methodArrayGet);
         var responseString = string.Join(",\n", response.Select((list, i) => $"#{i} {string.Join((string)", ", (IEnumerable<string>)list)}"));
         SampleOutputUtil.PrintResult(responseString, nameof(Evm), nameof(Evm.GetArray));
     }
@@ -152,7 +152,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void SendArray()
     {
-        var response = await Evm.SendArray(Web3Accessor.Web3, methodArraySend, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, stringArraySend);
+        var response = await Web3Accessor.Web3.Evm.SendArray<string[]>(ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, methodArraySend, stringArraySend);
         var output = SampleOutputUtil.BuildOutputValue(response);
         SampleOutputUtil.PrintResult(output, nameof(Evm), nameof(Evm.SendArray));
     }

@@ -1,0 +1,144 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Numerics;
+using System.Reflection;
+using System.Threading.Tasks;
+using ChainSafe.Gaming.Evm.Signers;
+using ChainSafe.Gaming.Evm.Transactions;
+using ChainSafe.Gaming.Evm.Utils;
+using Nethereum.Hex.HexTypes;
+
+namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
+{
+    public class EvmService
+    {
+        private readonly string abi;
+        private readonly IContractBuilder contractBuilder;
+        private readonly ISigner signer;
+
+        private readonly Dictionary<string, EvmContract> contractCache = new();
+
+        private EvmService()
+        {
+            abi = AbiHelper.ReadAbiFromResources(Assembly.GetExecutingAssembly(), "ChainSafe.Gaming.Resources.evm-abi.json");
+        }
+
+        public EvmService(IContractBuilder contractBuilder)
+            : this()
+        {
+            this.contractBuilder = contractBuilder;
+        }
+
+        public EvmService(IContractBuilder contractBuilder, ISigner signer)
+            : this(contractBuilder)
+        {
+            this.signer = signer;
+        }
+
+        /// <summary>
+        /// Builds an EVM contract instance.
+        /// </summary>
+        /// <param name="address">The address of the EVM contract.</param>
+        /// <returns>An instance of EvmContract.</returns>
+        public EvmContract BuildContract(string address)
+        {
+            if (contractCache.TryGetValue(address, out var cachedContract))
+            {
+                return cachedContract;
+            }
+
+            var originalContract = contractBuilder.Build(abi, address);
+            var contract = new EvmContract(originalContract, signer);
+            contractCache.Add(address, contract);
+            return contract;
+        }
+
+        /// <summary>
+        /// Builds an EVM contract instance with an ABI.
+        /// </summary>
+        /// <param name="address">The address of the EVM contract.</param>
+        /// <param name="abi">The abi of the EVM contract.</param>
+        /// <returns>An instance of EvmContract.</returns>
+        public EvmContract BuildContract(string address, string abi)
+        {
+            if (contractCache.TryGetValue(address, out var cachedContract))
+            {
+                return cachedContract;
+            }
+
+            var originalContract = contractBuilder.Build(abi, address);
+            var contract = new EvmContract(originalContract, signer);
+            contractCache.Add(address, contract);
+            return contract;
+        }
+
+        [Pure]
+        public Task<object[]> ContractCall(string contractAddress, string abi, string method, object[] args) =>
+            BuildContract(contractAddress, abi).ContractCall(method, args);
+
+        [Pure]
+        public Task<object[]> ContractSend(string contractAddress, string abi, string method, object[] args, HexBigInteger value = null) =>
+            BuildContract(contractAddress, abi).ContractSend(method, args, value);
+
+        [Pure]
+        public Task<object[]> GetArray<T>(string contractAddress, string abi, string method, object[] args = null) =>
+            BuildContract(contractAddress, abi).GetArray<T>(method, args);
+
+        [Pure]
+        public Task<object[]> SendArray<T>(string contractAddress, string abi, string method, object[] array) =>
+            BuildContract(contractAddress, abi).SendArray<T>(method, array);
+
+        [Pure]
+        public Task<HexBigInteger> GetBlockNumber() =>
+            BuildContract(string.Empty).GetBlockNumber();
+
+        [Pure]
+        public Task<IEnumerable<HexBigInteger>> GetGasLimit(string contractAddress, string abi, string contractAbi, string method, object[] args) =>
+            BuildContract(contractAddress, abi).GetGasLimit(contractAddress, abi, method, args);
+
+        [Pure]
+        public Task<HexBigInteger> GetGasPrice() =>
+            BuildContract(string.Empty).GetGasPrice();
+
+        [Pure]
+        public Task<HexBigInteger> GetNonce() =>
+            BuildContract(string.Empty).GetNonce();
+
+        [Pure]
+        public Task<TransactionReceipt> GetTransactionStatus() =>
+            BuildContract(string.Empty).GetTransactionStatus();
+
+        [Pure]
+        public Task<string> SendTransaction(string contractAddress, string abi, string to, BigInteger value) =>
+            BuildContract(contractAddress, abi).SendTransaction(to, value);
+
+        [Pure]
+        public string Sha3(string message) =>
+            BuildContract(string.Empty).Sha3(message);
+
+        [Pure]
+        public Task<string> SignMessage(string message) =>
+            BuildContract(string.Empty).SignMessage(message);
+
+        [Pure]
+        public Task<bool> SignVerify(string message) =>
+            BuildContract(string.Empty).SignVerify(message);
+
+        [Pure]
+        public string EcdsaSignTransaction(string privateKey, string transaction, string chainId) =>
+            BuildContract(string.Empty).EcdsaSignTransaction(privateKey, transaction, chainId);
+
+        [Pure]
+        public string EcdsaGetAddress(string privateKey) =>
+            BuildContract(string.Empty).EcdsaGetAddress(privateKey);
+
+        [Pure]
+        public string EcdsaSignMessage(string privateKey, string message) =>
+            BuildContract(string.Empty).EcdsaSignMessage(privateKey, message);
+
+        [Pure]
+        public Task<BigInteger> UseRegisteredContract(string contractAddress, string abi, string contractName, string method) =>
+            BuildContract(contractAddress, abi).UseRegisteredContract(contractName, method);
+    }
+}
