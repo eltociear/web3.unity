@@ -118,7 +118,6 @@ public class EvmCalls : MonoBehaviour
             Web3Accessor.Web3.Signer.PublicAddress
         };
         var response = await Web3Accessor.Web3.Evm.ContractCall(ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, methodCall, args);
-        Debug.Log(response);
         var output = SampleOutputUtil.BuildOutputValue(response);
         SampleOutputUtil.PrintResult(output, nameof(Evm), nameof(Evm.ContractCall));
     }
@@ -162,7 +161,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void GetBlockNumber()
     {
-        var blockNumber = await Evm.GetBlockNumber(Web3Accessor.Web3);
+        var blockNumber = await Evm.GetBlockNumber();
         SampleOutputUtil.PrintResult(blockNumber.ToString(), nameof(Evm), nameof(Evm.GetBlockNumber));
     }
 
@@ -175,7 +174,7 @@ public class EvmCalls : MonoBehaviour
         {
             increaseAmountSend
         };
-        var gasLimit = await Evm.GetGasLimit(Web3Accessor.Web3, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, methodSend, args);
+        var gasLimit = await Evm.GetGasLimit(ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, methodSend, args);
         SampleOutputUtil.PrintResult(gasLimit.ToString(), nameof(Evm), nameof(Evm.GetGasLimit));
     }
 
@@ -184,7 +183,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void GetGasPrice()
     {
-        var gasPrice = await Evm.GetGasPrice(Web3Accessor.Web3);
+        var gasPrice = await Evm.GetGasPrice();
         SampleOutputUtil.PrintResult(gasPrice.ToString(), nameof(Evm), nameof(Evm.GetGasPrice));
     }
 
@@ -193,7 +192,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void GetNonce()
     {
-        var nonce = await Evm.GetNonce(Web3Accessor.Web3);
+        var nonce = await Evm.GetNonce();
         SampleOutputUtil.PrintResult(nonce.ToString(), nameof(Evm), nameof(Evm.GetNonce));
     }
 
@@ -202,7 +201,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void GetTransactionStatus()
     {
-        var receipt = await Evm.GetTransactionStatus(Web3Accessor.Web3);
+        var receipt = await Evm.GetTransactionStatus();
         var output = $"Confirmations: {receipt.Confirmations}," +
                      $" Block Number: {receipt.BlockNumber}," +
                      $" Status {receipt.Status}";
@@ -215,7 +214,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void RegisteredContract()
     {
-        var balance = await Evm.UseRegisteredContract(Web3Accessor.Web3, registeredContractName, EthMethods.BalanceOf);
+        var balance = await Evm.UseRegisteredContract(registeredContractName, EthMethods.BalanceOf);
         SampleOutputUtil.PrintResult(balance.ToString(), nameof(Evm), nameof(Evm.UseRegisteredContract));
     }
 
@@ -224,7 +223,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void SendTransaction()
     {
-        var transactionHash = await Evm.SendTransaction(Web3Accessor.Web3, toAddress, BigInteger.Parse(value));
+        var transactionHash = await Evm.SendTransaction(toAddress, BigInteger.Parse(value));
         SampleOutputUtil.PrintResult(transactionHash, nameof(Evm), nameof(Evm.SendTransaction));
     }
 
@@ -242,7 +241,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void SignMessage()
     {
-        var signedMessage = await Evm.SignMessage(Web3Accessor.Web3, messageSign);
+        var signedMessage = await Evm.SignMessage(messageSign);
         SampleOutputUtil.PrintResult(signedMessage, nameof(Evm), nameof(Evm.SignMessage));
     }
 
@@ -251,7 +250,7 @@ public class EvmCalls : MonoBehaviour
     /// </summary>
     public async void SignVerify()
     {
-        var signatureVerified = await Evm.SignVerify(Web3Accessor.Web3, messageSignVerify);
+        var signatureVerified = await Evm.SignVerify(messageSignVerify);
         var output = signatureVerified ? "Verified" : "Failed to verify";
         SampleOutputUtil.PrintResult(output, nameof(Evm), nameof(Evm.SignVerify));
     }

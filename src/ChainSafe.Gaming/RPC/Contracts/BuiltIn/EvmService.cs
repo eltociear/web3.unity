@@ -75,11 +75,11 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
 
         [Pure]
         public Task<object[]> ContractCall(string contractAddress, string abi, string method, object[] args) =>
-            BuildContract(contractAddress, abi).ContractCall(method, args);
+            BuildContract(contractAddress, abi).ContractCall(contractAddress, abi, method, args);
 
         [Pure]
         public Task<object[]> ContractSend(string contractAddress, string abi, string method, object[] args, HexBigInteger value = null) =>
-            BuildContract(contractAddress, abi).ContractSend(method, args, value);
+            BuildContract(contractAddress, abi).ContractSend(contractAddress, abi, method, args, value);
 
         [Pure]
         public Task<object[]> GetArray<T>(string contractAddress, string abi, string method, object[] args = null) =>

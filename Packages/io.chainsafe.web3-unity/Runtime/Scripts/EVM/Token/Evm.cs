@@ -6,105 +6,101 @@ using System.Text;
 using System.Threading.Tasks;
 using ChainSafe.Gaming.Evm.Providers;
 using ChainSafe.Gaming.Evm.Transactions;
-using ChainSafe.Gaming.UnityPackage.Model;
 using ChainSafe.Gaming.Web3;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Signer;
 using Nethereum.Util;
-using UnityEngine;
-using ChainSafe.Gaming.Marketplace;
+using ChainSafe.Gaming.UnityPackage;
 
 namespace Scripts.EVM.Token
 {
     public static class Evm
     {
-        public static async Task<object[]> ContractSend(Web3 web3, string method, string abi, string contractAddress, object[] args, HexBigInteger value = null)
+        public static async Task<object[]> ContractSend(string method, string abi, string contractAddress, object[] args, HexBigInteger value = null)
         {
-            var contract = web3.ContractBuilder.Build(abi, contractAddress);
+            var contract = Web3Accessor.Web3.ContractBuilder.Build(abi, contractAddress);
             TransactionRequest overwrite = value != null ? new TransactionRequest { Value = value } : null;
             return await contract.Send(method, args, overwrite);
         }
 
-        public static async Task<object[]> ContractCall(Web3 web3, string method, string abi, string contractAddress, object[] args)
+        public static async Task<object[]> ContractCall(string method, string abi, string contractAddress, object[] args)
         {
-            var contract = web3.ContractBuilder.Build(abi, contractAddress);
+            var contract = Web3Accessor.Web3.ContractBuilder.Build(abi, contractAddress);
             return await contract.Call(method, args);
         }
 
-        public static async Task<List<List<T>>> GetArray<T>(Web3 web3, string contractAddress, string abi, string method, object[] args = null)
+        public static async Task<List<List<T>>> GetArray<T>(string contractAddress, string abi, string method, object[] args = null)
         {
-            var contract = web3.ContractBuilder.Build(abi, contractAddress);
+            var contract = Web3Accessor.Web3.ContractBuilder.Build(abi, contractAddress);
             var rawResponse = args != null ? await contract.Call(method, args) : await contract.Call(method);
             return rawResponse.Select(raw => raw as List<T>).ToList();
         }
 
-        public static async Task<HexBigInteger> GetBlockNumber(Web3 web3)
+        public static async Task<HexBigInteger> GetBlockNumber()
         {
-            return await web3.RpcProvider.GetBlockNumber();
+            return await Web3Accessor.Web3.RpcProvider.GetBlockNumber();
         }
 
-        public static async Task<HexBigInteger> GetGasLimit(Web3 web3, string contractAbi, string contractAddress, string method, object[] args)
+        public static async Task<HexBigInteger> GetGasLimit(string contractAbi, string contractAddress, string method, object[] args)
         {
-            var contract = web3.ContractBuilder.Build(contractAbi, contractAddress);
+            var contract = Web3Accessor.Web3.ContractBuilder.Build(contractAbi, contractAddress);
             return await contract.EstimateGas(method, args);
         }
 
-        public static async Task<HexBigInteger> GetGasPrice(Web3 web3)
+        public static async Task<HexBigInteger> GetGasPrice()
         {
-            return await web3.RpcProvider.GetGasPrice();
+            return await Web3Accessor.Web3.RpcProvider.GetGasPrice();
         }
 
-        public static async Task<HexBigInteger> GetNonce(Web3 web3)
+        public static async Task<HexBigInteger> GetNonce()
         {
             var transactionRequest = new TransactionRequest
             {
-                To = web3.Signer.PublicAddress,
+                To = Web3Accessor.Web3.Signer.PublicAddress,
                 Value = new HexBigInteger(100000)
             };
-            var transactionResponse = await web3.TransactionExecutor.SendTransaction(transactionRequest);
+            var transactionResponse = await Web3Accessor.Web3.TransactionExecutor.SendTransaction(transactionRequest);
             return transactionResponse.Nonce;
         }
 
-        public static async Task<TransactionReceipt> GetTransactionStatus(Web3 web3)
+        public static async Task<TransactionReceipt> GetTransactionStatus()
         {
             var transactionRequest = new TransactionRequest
             {
-                To = web3.Signer.PublicAddress,
+                To = Web3Accessor.Web3.Signer.PublicAddress,
                 Value = new HexBigInteger(10000000)
             };
-            var transactionResponse = await web3.TransactionExecutor.SendTransaction(transactionRequest);
-            return await web3.RpcProvider.WaitForTransactionReceipt(transactionResponse.Hash);
+            var transactionResponse = await Web3Accessor.Web3.TransactionExecutor.SendTransaction(transactionRequest);
+            return await Web3Accessor.Web3.RpcProvider.WaitForTransactionReceipt(transactionResponse.Hash);
         }
-
-        // ProviderEvent skipped
 
         public static async Task<BigInteger> UseRegisteredContract(Web3 web3, string contractName, string method)
         {
-            var account = web3.Signer.PublicAddress;
-            var contract = web3.ContractBuilder.Build(contractName);
+            var account = Web3Accessor.Web3.Signer.PublicAddress;
+            var contract = Web3Accessor.Web3.ContractBuilder.Build(contractName);
             var response = await contract.Call(method, new[] { account });
             var balance = BigInteger.Parse(response[0].ToString());
             return balance;
         }
 
         // todo we shouldn't build contract inside this method, but rather put this logic into the contract or some service
-        public static async Task<object[]> SendArray<T>(Web3 web3, string method, string abi, string contractAddress, T[] array)
+        public static async Task<object[]> SendArray<T>( string method, string abi, string contractAddress, T[] array)
         {
-            var contract = web3.ContractBuilder.Build(abi, contractAddress);
+            var contract = Web3Accessor.Web3.ContractBuilder.Build(abi, contractAddress);
             object[] objArray = array.Cast<object>().ToArray();
             return await contract.Send(method, new object[] { objArray });
         }
         
-        public static async Task<string> SendTransaction(Web3 web3, string to, BigInteger value)
+        public static async Task<string> SendTransaction(string to, BigInteger value)
         {
             var txRequest = new TransactionRequest
             {
                 To = to,
                 Value = new HexBigInteger(value.ToString("X")),
-                MaxFeePerGas = new HexBigInteger((await web3.RpcProvider.GetFeeData()).MaxFeePerGas)
+                MaxFeePerGas = new HexBigInteger((await Web3Accessor.Web3.RpcProvider.GetFeeData()).MaxFeePerGas)
             };
-            var response = await web3.TransactionExecutor.SendTransaction(txRequest);
+            var response = await Web3Accessor.Web3.TransactionExecutor.SendTransaction(txRequest);
             return response.Hash;
         }
 
@@ -114,16 +110,16 @@ namespace Scripts.EVM.Token
             return new Sha3Keccack().CalculateHash(message);
         }
 
-        public static async Task<string> SignMessage(Web3 web3, string message)
+        public static async Task<string> SignMessage(string message)
         {
-            return await web3.Signer.SignMessage(message);
+            return await Web3Accessor.Web3.Signer.SignMessage(message);
         }
 
         // todo extract in a separate service
-        public static async Task<bool> SignVerify(Web3 web3, string message)
+        public static async Task<bool> SignVerify(string message)
         {
-            var playerAccount = web3.Signer.PublicAddress;
-            var signatureString = await web3.Signer.SignMessage(message);
+            var playerAccount = Web3Accessor.Web3.Signer.PublicAddress;
+            var signatureString = await Web3Accessor.Web3.Signer.SignMessage(message);
             var msg = "\x19" + "Ethereum Signed Message:\n" + message.Length + message;
             var msgHash = new Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes(msg));
             var signature = MessageSigner.ExtractEcdsaSignature(signatureString);

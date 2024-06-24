@@ -26,20 +26,20 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         }
 
         [Pure]
-        public async Task<object[]> ContractCall(string method, object[] args)
+        public async Task<object[]> ContractCall(string contractAddress, string contractAbi, string method, object[] args)
         {
             EnsureSigner();
-            var result = await Original.SendMany<object[], object[]>(method, args);
-            return (object[])result;
+            var result = await Original.CallSingle<object[], string, string, object[]>(method, contractAddress, contractAbi, args);
+            return result;
         }
 
         [Pure]
-        public async Task<object[]> ContractSend(string method, object[] args, HexBigInteger value = null)
+        public async Task<object[]> ContractSend(string contractAddress, string contractAbi, string method, object[] args, HexBigInteger value = null)
         {
             EnsureSigner();
             TransactionRequest overwrite = value != null ? new TransactionRequest { Value = value } : null;
-            var result = await Original.SendMany<object[], object[], TransactionRequest>(method, args, overwrite);
-            return (object[])result;
+            var result = await Original.SendSingle<object[], object[]>(method, args, overwrite);
+            return result;
         }
 
         [Pure]
@@ -127,7 +127,7 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         [Pure]
         public string Sha3(string message)
         {
-            return new Sha3Keccak().CalculateHash(message);
+            return new Sha3Keccack().CalculateHash(message);
         }
 
         [Pure]
@@ -145,7 +145,7 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
             var playerAccount = signer.PublicAddress;
             var signatureString = await signer.SignMessage(message);
             var msg = "\x19" + "Ethereum Signed Message:\n" + message.Length + message;
-            var msgHash = new Sha3Keccak().CalculateHash(Encoding.UTF8.GetBytes(msg));
+            var msgHash = new Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes(msg));
             var signature = MessageSigner.ExtractEcdsaSignature(signatureString);
             var key = EthECKey.RecoverFromSignature(signature, msgHash);
             return key.GetPublicAddress().ToLower() == playerAccount.ToLower();
