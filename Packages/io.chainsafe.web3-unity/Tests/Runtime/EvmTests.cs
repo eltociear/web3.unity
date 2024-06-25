@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using ChainSafe.Gaming.Evm.Contracts.BuiltIn;
+using ChainSafe.Gaming.UnityPackage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NUnit.Framework;
@@ -51,7 +52,7 @@ public class EvmTests : SampleTestsBase
     {
         var address = web3.Signer.PublicAddress;
         object[] args = { address };
-        var callContract = Evm.ContractCall(web3, ContractCallMethod, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, args);
+        var callContract = Evm.ContractCall(ContractCallMethod, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, args);
         yield return new WaitUntil(() => callContract.IsCompleted);
         if (callContract.Exception != null) throw callContract.Exception;
         Assert.IsTrue(callContract.IsCompletedSuccessfully);
@@ -61,7 +62,7 @@ public class EvmTests : SampleTestsBase
     [UnityTest]
     public IEnumerator TestGetArray()
     {
-        var getArray = Evm.GetArray<string>(web3, ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, GetArrayMethod);
+        var getArray = Evm.GetArray<string>(ChainSafeContracts.ArrayTotal, ABI.ArrayTotal, GetArrayMethod);
         yield return new WaitUntil(() => getArray.IsCompleted);
         // Convert toLower to make comparing easier
         var result = getArray.Result.ConvertAll(a => a.ConvertAll(b => b.ToLower()));
@@ -74,7 +75,7 @@ public class EvmTests : SampleTestsBase
     [UnityTest]
     public IEnumerator TestGetBlockNumber()
     {
-        var getBlockNumber = Evm.GetBlockNumber(web3);
+        var getBlockNumber = Evm.GetBlockNumber();
         yield return new WaitUntil(() => getBlockNumber.IsCompleted);
         if (getBlockNumber.Exception != null) throw getBlockNumber.Exception;
         // Just assert successful completion because result is always changing
@@ -88,7 +89,7 @@ public class EvmTests : SampleTestsBase
         {
            IncreaseAmount
         };
-        var getGasLimit = Evm.GetGasLimit(web3, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, ContractSendMethod, args);
+        var getGasLimit = Evm.GetGasLimit(ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, ContractSendMethod, args);
         yield return new WaitUntil(() => getGasLimit.IsCompleted);
         if (getGasLimit.Exception != null) throw getGasLimit.Exception;
         // Just assert successful completion because result is always changing
@@ -98,7 +99,7 @@ public class EvmTests : SampleTestsBase
     [UnityTest]
     public IEnumerator TestGetGasPrice()
     {
-        var getGasPrice = Evm.GetGasPrice(web3);
+        var getGasPrice = Evm.GetGasPrice();
         yield return new WaitUntil(() => getGasPrice.IsCompleted);
         if (getGasPrice.Exception != null) throw getGasPrice.Exception;
         // Just assert successful completion because result is always changing
@@ -108,7 +109,7 @@ public class EvmTests : SampleTestsBase
     [UnityTest]
     public IEnumerator TestUseRegisteredContract()
     {
-        var useRegisteredContract = Evm.UseRegisteredContract(web3, "CsTestErc20", EthMethods.BalanceOf);
+        var useRegisteredContract = Web3Accessor.Web3.Evm.UseRegisteredContract("CsTestErc20", EthMethods.BalanceOf);
         yield return new WaitUntil(() => useRegisteredContract.IsCompleted);
         if (useRegisteredContract.Exception != null) throw useRegisteredContract.Exception;
         Assert.IsTrue(useRegisteredContract.IsCompletedSuccessfully);
@@ -150,7 +151,7 @@ public class EvmTests : SampleTestsBase
     [UnityTest]
     public IEnumerator TestCustomBalanceOfErc20()
     {
-        var getCustomBalanceOf = web3.Erc20.GetBalanceOf(ChainSafeContracts.Erc20);
+        var getCustomBalanceOf = Web3Accessor.Web3.Erc20.GetBalanceOf(ChainSafeContracts.Erc20);
         yield return new WaitUntil(() => getCustomBalanceOf.IsCompleted);
         Assert.AreEqual(new BigInteger(0), getCustomBalanceOf.Result);
     }

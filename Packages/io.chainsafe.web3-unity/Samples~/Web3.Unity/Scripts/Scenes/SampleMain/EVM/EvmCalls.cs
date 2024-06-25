@@ -117,7 +117,7 @@ public class EvmCalls : MonoBehaviour
         {
             Web3Accessor.Web3.Signer.PublicAddress
         };
-        var response = await Evm.ContractCall(Web3Accessor.Web3, methodCall, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, args);
+        var response = await Evm.ContractCall(methodCall, ABI.ArrayTotal, ChainSafeContracts.ArrayTotal, args);
         Debug.Log(response);
         var output = SampleOutputUtil.BuildOutputValue(response);
         SampleOutputUtil.PrintResult(output, nameof(Evm), nameof(Evm.ContractCall));

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Numerics;
 using System.Text;
@@ -26,36 +27,44 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         }
 
         [Pure]
-        public async Task<object[]> ContractCall(string contractAddress, string contractAbi, string method, object[] args)
+        public async Task<T> ContractCall<T>(string method, string arg1)
         {
             EnsureSigner();
-            var result = await Original.CallSingle<object[], string, string, object[]>(method, contractAddress, contractAbi, args);
+            var result = await Original.CallSingle<T, string>(method, arg1);
             return result;
         }
 
         [Pure]
-        public async Task<object[]> ContractSend(string contractAddress, string contractAbi, string method, object[] args, HexBigInteger value = null)
+        public async Task<T> ContractSend<T>(string method, string arg1, HexBigInteger value = null)
         {
             EnsureSigner();
-            TransactionRequest overwrite = value != null ? new TransactionRequest { Value = value } : null;
-            var result = await Original.SendSingle<object[], object[]>(method, args, overwrite);
+            var overwrite = value != null ? new TransactionRequest { Value = value } : null;
+            var result = await Original.SendSingle<T, string>(method, arg1, overwrite);
             return result;
         }
 
         [Pure]
-        public async Task<object[]> GetArray<T>(string method, object[] args = null)
+        public async Task<IEnumerable<T>> GetArray<T>(string method, string arg1 = null)
         {
             EnsureSigner();
-            var result = await Original.SendMany<object[], object[]>(method, args);
-            return (object[])result;
+            if (arg1 == null)
+            {
+                var result = await Original.SendMany<T>(method);
+                return result;
+            }
+            else
+            {
+                var result = await Original.SendMany<T, string>(method, arg1);
+                return result;
+            }
         }
 
         [Pure]
-        public async Task<object[]> SendArray<T>(string method, object[] args = null)
+        public async Task<IEnumerable<T>> SendArray<T>(string method, string[] arg1 = null)
         {
             EnsureSigner();
-            var result = await Original.SendMany<object[], object[]>(method, args);
-            return (object[])result;
+            var result = await Original.SendMany<T, string[]>(method, arg1);
+            return result;
         }
 
         [Pure]
@@ -66,9 +75,9 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         }
 
         [Pure]
-        public async Task<IEnumerable<HexBigInteger>> GetGasLimit(string contractAddress, string contractAbi, string method, object[] args)
+        public async Task<IEnumerable<HexBigInteger>> GetGasLimit(string method, object[] args)
         {
-            IEnumerable<HexBigInteger> result = await Original.SendMany<HexBigInteger, string, string, string, object[]>(method, contractAddress, contractAbi, method, args);
+            var result = await Original.SendMany<HexBigInteger, object[]>(method, args);
             return result;
         }
 

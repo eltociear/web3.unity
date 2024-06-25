@@ -17,7 +17,7 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         private readonly IContractBuilder contractBuilder;
         private readonly ISigner signer;
 
-        private readonly Dictionary<string, EvmContract> contractCache = new();
+        private readonly Dictionary<string, Tuple<string, EvmContract>> contractCache = new();
 
         private EvmService()
         {
@@ -45,12 +45,13 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         {
             if (contractCache.TryGetValue(address, out var cachedContract))
             {
-                return cachedContract;
+                return cachedContract.Item2;
             }
 
             var originalContract = contractBuilder.Build(abi, address);
             var contract = new EvmContract(originalContract, signer);
-            contractCache.Add(address, contract);
+            var tuple = Tuple.Create(string.Empty, contract);
+            contractCache.Add(address, tuple);
             return contract;
         }
 
@@ -64,38 +65,39 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
         {
             if (contractCache.TryGetValue(address, out var cachedContract))
             {
-                return cachedContract;
+                return cachedContract.Item2;
             }
 
             var originalContract = contractBuilder.Build(abi, address);
             var contract = new EvmContract(originalContract, signer);
-            contractCache.Add(address, contract);
+            var tuple = Tuple.Create(abi, contract);
+            contractCache.Add(address, tuple);
             return contract;
         }
 
         [Pure]
-        public Task<object[]> ContractCall(string contractAddress, string abi, string method, object[] args) =>
-            BuildContract(contractAddress, abi).ContractCall(contractAddress, abi, method, args);
+        public Task<T> ContractCall<T>(string contractAddress, string abi, string method, string arg1) =>
+            BuildContract(contractAddress, abi).ContractCall<T>(method, arg1);
 
         [Pure]
-        public Task<object[]> ContractSend(string contractAddress, string abi, string method, object[] args, HexBigInteger value = null) =>
-            BuildContract(contractAddress, abi).ContractSend(contractAddress, abi, method, args, value);
+        public Task<T> ContractSend<T>(string contractAddress, string abi, string method, string arg1) =>
+            BuildContract(contractAddress, abi).ContractSend<T>(method, arg1);
 
         [Pure]
-        public Task<object[]> GetArray<T>(string contractAddress, string abi, string method, object[] args = null) =>
-            BuildContract(contractAddress, abi).GetArray<T>(method, args);
+        public Task<IEnumerable<T>> GetArray<T>(string contractAddress, string abi, string method, string arg1 = null) =>
+            BuildContract(contractAddress, abi).GetArray<T>(method, arg1);
 
         [Pure]
-        public Task<object[]> SendArray<T>(string contractAddress, string abi, string method, object[] array) =>
-            BuildContract(contractAddress, abi).SendArray<T>(method, array);
+        public Task<IEnumerable<T>> SendArray<T>(string contractAddress, string abi, string method, string[] arg1 = null) =>
+            BuildContract(contractAddress, abi).SendArray<T>(method, arg1);
 
         [Pure]
         public Task<HexBigInteger> GetBlockNumber() =>
             BuildContract(string.Empty).GetBlockNumber();
 
         [Pure]
-        public Task<IEnumerable<HexBigInteger>> GetGasLimit(string contractAddress, string abi, string contractAbi, string method, object[] args) =>
-            BuildContract(contractAddress, abi).GetGasLimit(contractAddress, abi, method, args);
+        public Task<IEnumerable<HexBigInteger>> GetGasLimit(string contractAddress, string abi, string method, object[] args) =>
+            BuildContract(contractAddress, abi).GetGasLimit(method, args);
 
         [Pure]
         public Task<HexBigInteger> GetGasPrice() =>
@@ -138,7 +140,7 @@ namespace ChainSafe.Gaming.Evm.Contracts.BuiltIn
             BuildContract(string.Empty).EcdsaSignMessage(privateKey, message);
 
         [Pure]
-        public Task<BigInteger> UseRegisteredContract(string contractAddress, string abi, string contractName, string method) =>
-            BuildContract(contractAddress, abi).UseRegisteredContract(contractName, method);
+        public Task<BigInteger> UseRegisteredContract(string contractName, string method) =>
+            BuildContract(string.Empty).UseRegisteredContract(contractName, method);
     }
 }

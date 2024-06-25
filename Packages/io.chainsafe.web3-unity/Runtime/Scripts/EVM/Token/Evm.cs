@@ -75,7 +75,7 @@ namespace Scripts.EVM.Token
             return await Web3Accessor.Web3.RpcProvider.WaitForTransactionReceipt(transactionResponse.Hash);
         }
 
-        public static async Task<BigInteger> UseRegisteredContract(Web3 web3, string contractName, string method)
+        public static async Task<BigInteger> UseRegisteredContract(string contractName, string method)
         {
             var account = Web3Accessor.Web3.Signer.PublicAddress;
             var contract = Web3Accessor.Web3.ContractBuilder.Build(contractName);
@@ -85,7 +85,7 @@ namespace Scripts.EVM.Token
         }
 
         // todo we shouldn't build contract inside this method, but rather put this logic into the contract or some service
-        public static async Task<object[]> SendArray<T>( string method, string abi, string contractAddress, T[] array)
+        public static async Task<object[]> SendArray<T>(string method, string abi, string contractAddress, T[] array)
         {
             var contract = Web3Accessor.Web3.ContractBuilder.Build(abi, contractAddress);
             object[] objArray = array.Cast<object>().ToArray();
