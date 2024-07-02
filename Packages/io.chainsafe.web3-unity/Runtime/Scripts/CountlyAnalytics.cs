@@ -14,14 +14,14 @@ public class CountlyAnalytics : IAnalyticsClient
 
     public async void CaptureEvent(AnalyticsEvent eventData)
     {
-        await Countly.Instance.Events.RecordEventAsync(eventData.EventName, new Dictionary<string, object>()
+        /*await Countly.Instance.Events.RecordEventAsync(eventData.EventName, new Dictionary<string, object>()
         {
             { "chain", eventData.ChainId},
             { "network", eventData.Network},
             { "project-id", eventData.ProjectId},
             { "rpc ", eventData.Rpc},
             { "version", AnalyticsVersion},
-        });
+        });*/
     }
 
     public string AnalyticsVersion => "2.5.5";
@@ -30,8 +30,8 @@ public class CountlyAnalytics : IAnalyticsClient
 
     public CountlyAnalytics(IChainConfig chainConfig, IProjectConfig projectConfig)
     {
-        Countly.Instance.Init(new CountlyConfiguration(AppKey, ServerUrl));
-        Debug.Log("Countly initialized");
+        /*Countly.Instance.Init(new CountlyConfiguration(AppKey, ServerUrl));
+        Debug.Log("Countly initialized");*/
 
         ChainConfig = chainConfig;
         ProjectConfig = projectConfig;

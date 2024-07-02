@@ -4,11 +4,10 @@ using ChainSafe.Gaming.Evm.Signers;
 using ChainSafe.Gaming.Evm.Transactions;
 using ChainSafe.Gaming.InProcessSigner;
 using ChainSafe.Gaming.InProcessTransactionExecutor;
-using ChainSafe.Gaming.InProcessTransactionExecutor.Unity;
-using ChainSafe.Gaming.Web3;
 using ChainSafe.Gaming.Web3.Analytics;
 using ChainSafe.Gaming.Web3.Core;
 using ChainSafe.Gaming.Web3.Core.Evm;
+using Nethereum.JsonRpc.Client;
 using Nethereum.Signer;
 using UnityEngine;
 using TWeb3Auth = Web3Auth;
@@ -25,21 +24,29 @@ namespace ChainSafe.GamingSdk.Web3Auth
         private readonly IRpcProvider rpcProvider;
         private TWeb3Auth coreInstance;
         private InProcessSigner signer;
-        private InProcessTransactionExecutor transactionExecutor;
+        private ITransactionExecutor transactionExecutor;
+        private IClient rpcClient;
         private readonly IAnalyticsClient analyticsClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Web3AuthWallet"/> class.
         /// </summary>
         /// <param name="config">The configuration for the Web3Auth wallet.</param>
-        /// <param name="chainConfig">The configuration for the target blockchain.</param>
         /// <param name="rpcProvider">The RPC provider for blockchain interaction.</param>
-        public Web3AuthWallet(Web3AuthWalletConfig config, IRpcProvider rpcProvider, IAnalyticsClient analyticsClient)
+        /// <param name="rpcClient"></param>
+        /// <param name="analyticsClient"></param>
+        public Web3AuthWallet(Web3AuthWalletConfig config, IRpcProvider rpcProvider, IClient rpcClient, IAnalyticsClient analyticsClient)
         {
             this.config = config;
             this.rpcProvider = rpcProvider;
+            this.rpcClient = rpcClient;
             this.analyticsClient = analyticsClient;
         }
+
+        /// <summary>
+        /// Gets the blockchain address associated with this wallet.
+        /// </summary>
+        public string PublicAddress => signer.GetAddress().Result;
 
         /// <summary>
         /// Asynchronously prepares the Web3Auth wallet for operation, triggered when initializing the module in the dependency injection work flow.
@@ -50,10 +57,7 @@ namespace ChainSafe.GamingSdk.Web3Auth
 
             analyticsClient.CaptureEvent(new AnalyticsEvent()
             {
-                ChainId = analyticsClient.ChainConfig.ChainId,
-                Network = analyticsClient.ChainConfig.Network,
                 EventName = $"Web3Auth Initialized",
-                ProjectId = analyticsClient.ProjectConfig.ProjectId,
                 PackageName = "io.chainsafe.web3-unity.web3auth",
             });
             coreInstance = CreateCoreInstance();
@@ -68,7 +72,7 @@ namespace ChainSafe.GamingSdk.Web3Auth
             var signerConfig = new InProcessSignerConfig { PrivateKey = privateKey };
             signer = new InProcessSigner(signerConfig);
 
-            transactionExecutor = new InProcessTransactionExecutor(signer, analyticsClient.ChainConfig, rpcProvider, new RpcClientWrapper(analyticsClient.ChainConfig));
+            transactionExecutor = new InProcessTransactionExecutor(signer, analyticsClient.ChainConfig, rpcProvider, rpcClient);
 
             void Web3Auth_OnLogin(Web3AuthResponse response)
             {
@@ -98,11 +102,10 @@ namespace ChainSafe.GamingSdk.Web3Auth
             }
         }
 
-        /// <summary>
-        /// Gets the blockchain address associated with this wallet.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation and returns the blockchain address as a string.</returns>
-        public Task<string> GetAddress() => signer.GetAddress();
+        public Task<string> GetAddress()
+        {
+            return signer.GetAddress();
+        }
 
         /// <summary>
         /// Signs a message using the private key associated with this wallet.
