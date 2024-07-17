@@ -53,5 +53,14 @@
   },
   "testables": [
     "io.chainsafe.web3-unity"
+  ],
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.nethereum.unity"
+      ]
+    }
   ]
 }

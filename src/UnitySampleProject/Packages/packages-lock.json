@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.nethereum.unity": {
+      "version": "4.19.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.tools.webglthreadingpatcher": {
       "version": "https://github.com/VolodymyrBS/WebGLThreadingPatcher.git",
       "depth": 0,
@@ -155,7 +162,8 @@
       "source": "local",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.textmeshpro": "3.0.6"
+        "com.unity.textmeshpro": "3.0.6",
+        "com.nethereum.unity": "4.19.2"
       }
     },
     "io.chainsafe.web3-unity.hyperplay": {
