@@ -157,7 +157,7 @@ public class Web3AuthWalletGUITxManager : MonoBehaviour
             {
                 txHistoryPrefabs[i - 1] = txHistoryPrefabs[i];
             }
-            txHistoryPrefabs[txHistoryPrefabs.Length - 1] = Instantiate(txHistoryDataPrefab, txHistoryScrollPanel.transform);
+            txHistoryPrefabs[^1] = Instantiate(txHistoryDataPrefab, txHistoryScrollPanel.transform);
             UpdateTransactionHistory(txHistoryPrefabs.Length - 1, txObjectNumber.ToString(), time, action, amount, txHash);
         }
         else
